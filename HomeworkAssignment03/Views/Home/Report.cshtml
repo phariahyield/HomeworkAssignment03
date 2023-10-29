@@ -1,0 +1,203 @@
+﻿@model List<HomeworkAssignment03.Models.ReportViewModel>
+
+<h2>Popular Books Report</h2>
+
+<div>
+    <button id="generatePieChart">Generate Popular Books Report</button>
+</div>
+
+
+<br />
+<h5>Highest Borrowed Book</h5>
+<p id="highestBorrowedBook"></p>
+
+<h5>Lowest Borrowed Book</h5>
+<p id="lowestBorrowedBook"></p>
+
+<canvas id="pieChart" width="400" height="400"></canvas>
+<br />
+<div>
+    <label for="fileName">Enter File Name:</label>
+    <input type="text" id="fileName" />
+    <label for="fileDescription">Description:</label>
+    <input type="text" id="fileDescription" /> <!-- Add the description input -->
+    <button id="saveAsPdf">Save as PDF</button>
+    <button id="saveAsCsv">Save as CSV</button>
+</div>
+
+<br />
+
+<table class="table table-bordered">
+    <!-- Add 'table-bordered' class for grid lines -->
+    <thead style="background-color: #007bff; color: white;">
+        <!-- Highlighted heading row -->
+        <tr>
+            <th>File Name</th>
+            <th>Description</th>
+            <th>File Type</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody id="savedReportsTable">
+        <!-- Table rows for saved reports will be dynamically generated here -->
+    </tbody>
+</table>
+
+@section scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.71/pdfmake.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.71/vfs_fonts.js"></script>
+    <script>
+        $(document).ready(function () {
+            let pieChartGenerated = false;
+
+            // Function to create the pie chart
+            function createPieChart() {
+                if (pieChartGenerated) {
+                    return;
+                }
+
+                var labels = [];
+                var data = [];
+
+                // Extract data from the model
+                @foreach (var item in Model) {
+                    <text>
+                        labels.push("@item.BookName");
+                        data.push(@item.BorrowCount);
+                    </text>
+                }
+
+                // Create the pie chart
+                var ctx = document.getElementById('pieChart').getContext('2d');
+                var pieChart = new Chart(ctx, {
+                    type: 'pie',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.2)',
+                                'rgba(54, 162, 235, 0.2)',
+                                'rgba(255, 206, 86, 0.2)',
+                                'rgba(75, 192, 192, 0.2)',
+                                'rgba(153, 102, 255, 0.2)'
+                            ],
+                            borderColor: [
+                                'rgba(255, 99, 132, 1)',
+                                'rgba(54, 162, 235, 1)',
+                                'rgba(255, 206, 86, 1)',
+                                'rgba(75, 192, 192, 1)',
+                                'rgba(153, 102, 255, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    }
+                });
+
+                pieChartGenerated = true;
+
+                // Find the highest and lowest borrowed books
+                var highestBorrowedBook = labels[data.indexOf(Math.max(...data))];
+                var lowestBorrowedBook = labels[data.indexOf(Math.min(...data))];
+                $("#highestBorrowedBook").text("Highest Borrowed Book: " + highestBorrowedBook);
+                $("#lowestBorrowedBook").text("Lowest Borrowed Book: " + lowestBorrowedBook);
+            }
+
+            // Attach a click event to the "Generate Pie Chart" button
+            $("#generatePieChart").click(function () {
+                createPieChart();
+            });
+
+            // Attach a click event to the "Save as PDF" button
+            $("#saveAsPdf").click(function () {
+                var fileName = $("#fileName").val();
+                var description = $("#fileDescription").val(); // Get the description input
+                savePieChartAsPdf(fileName, description);
+            });
+
+            // Attach a click event to the "Save as CSV" button
+            $("#saveAsCsv").click(function () {
+                var fileName = $("#fileName").val();
+                var description = $("#fileDescription").val(); // Get the description input
+                saveDataAsCsv(fileName, description);
+            });
+
+            // Function to save the pie chart as PDF
+            function savePieChartAsPdf(fileName, description) {
+                if (!pieChartGenerated) {
+                    return;
+                }
+
+                var canvas = document.getElementById('pieChart');
+                var pdfDefinition = {
+                    content: [
+                        {
+                            text: description, // Add the description to the PDF
+                            margin: [0, 0, 0, 10],
+                        },
+                        {
+                            image: canvas.toDataURL('image/png'),
+                            width: 500,
+                        },
+                    ],
+                };
+
+                var pdf = pdfMake.createPdf(pdfDefinition);
+
+                // Save the PDF and add the report row
+                pdf.getBase64(function (data) {
+                    addSavedReportRow(fileName, description, 'PDF');
+                    pdf.download(fileName + '.pdf', function () {
+                        // Handle the download completion here if needed
+                    });
+                });
+            }
+
+            // Function to save data as CSV
+            function saveDataAsCsv(fileName, description) {
+                var csvContent = 'data:text/csv;charset=utf-8,';
+                csvContent += 'Book Name, Borrow Count\n';
+                @foreach (var item in Model) {
+                    <text>
+                        csvContent += "@item.BookName" + ',' + @item.BorrowCount + '\n';
+                    </text>
+                }
+                var encodedUri = encodeURI(csvContent);
+                var link = document.createElement('a');
+                link.setAttribute('href', encodedUri);
+                link.setAttribute('download', fileName + '.csv');
+                link.click();
+
+                // Add the report row
+                addSavedReportRow(fileName, description, 'CSV');
+            }
+
+            // Function to add a row to the saved reports table
+            function addSavedReportRow(fileName, description, fileType) {
+                var row = `<tr>
+                        <td>${fileName}</td>
+                        <td>${description}</td>
+                        <td>${fileType}</td>
+                        <td>
+                            <button class="download" data-fileName="${fileName}">Download</button>
+                            <button class="delete" data-fileName="${fileName}">Delete</button>
+                        </td>
+                    </tr>`;
+                $("#savedReportsTable").append(row);
+            }
+
+            // Handle download and delete actions for saved reports
+            $("#savedReportsTable").on("click", ".download", function () {
+                var fileName = $(this).data("fileName");
+                // Implement download logic here
+            });
+
+            $("#savedReportsTable").on("click", ".delete", function () {
+                var fileName = $(this).data("fileName");
+                // Remove the corresponding row
+                $(this).closest('tr').remove();
+            });
+        });
+    </script>
+}

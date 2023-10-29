@@ -1,0 +1,258 @@
+﻿@model HomeworkAssignment03.Models.MaintainViewModel
+
+@{
+    ViewBag.Title = "Index";
+}
+
+@{
+    var nullBorrow = Model.Borrows?.Where(x => x.takenDate == null).Select(x => x.bookId).ToList();
+}
+
+<style>
+    .table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+        .table th {
+            background-color: lightblue;
+            border: 1px solid #dddddd;
+        }
+
+        .table th, .table td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 8px;
+        }
+
+    .text-end {
+        text-align: right;
+    }
+</style>
+
+<h2>Maintain</h2>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+@using PagedList.Mvc;
+@using PagedList;
+
+<div class="row">
+    <div class="col-md-6">
+        <h3>Authors</h3>
+        <div class="text-end">
+            <a href="#" class="details-link" data-url="@Url.Action("Create", "authors")">Create</a>
+        </div>
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Authors.FirstOrDefault().authorId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Authors.FirstOrDefault().name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Authors.FirstOrDefault().surname)
+                </th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model.Authors)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.authorId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.surname)
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="edit-link" data-url="@Url.Action("Edit", "authors", new { id = item.authorId })">Edit</a>
+                        <a href="#" class="details-link" data-url="@Url.Action("Details", "authors", new { id = item.authorId })">Details</a>
+                        <a href="#" class="delete-link" data-url="@Url.Action("Delete", "authors", new { id = item.authorId })">Delete</a>
+                    </td>
+                </tr>
+            }
+        </table>
+        @Html.PagedListPager(Model.Authors, page => Url.Action("Maintain", new { page }))
+    </div>
+
+    <div class="col-md-6">
+        <div class="text-end">
+            <h3>Types</h3>
+            <a href="#" class="details-link" data-url="@Url.Action("Create", "types")">Create</a>
+        </div>
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Types.FirstOrDefault().typeId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Types.FirstOrDefault().name)
+                </th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model.Types)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.typeId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.name)
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="edit-link" data-url="@Url.Action("Edit", "types", new { id = item.typeId })">Edit</a>
+                        <a href="#" class="details-link" data-url="@Url.Action("Details", "types", new { id = item.typeId })">Details</a>
+                        <a href="#" class="delete-link" data-url="@Url.Action("Delete", "types", new { id = item.typeId })">Delete</a>
+                    </td>
+                </tr>
+            }
+        </table>
+        @Html.PagedListPager(Model.Types, page => Url.Action("Maintain", new { page }))
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="text-end">
+            <h3>Borrows</h3>
+            <a href="#" class="details-link" data-url="@Url.Action("Create", "borrows")">Create</a>
+        </div>
+        <table class="table">
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Borrows.FirstOrDefault().borrowId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Students.FirstOrDefault().studentId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Books.FirstOrDefault().bookId)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Borrows.FirstOrDefault().takenDate)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Borrows.FirstOrDefault().broughtDate)
+                </th>
+                <th></th>
+            </tr>
+            @foreach (var item in Model.Borrows)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.borrowId)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.students.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.books.name)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.takenDate)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.broughtDate)
+                    </td>
+                    <td class="text-end">
+                        <a href="#" class="edit-link" data-url="@Url.Action("Edit", "borrows", new { id = item.borrowId })">Edit</a>
+                        <a href="#" class="details-link" data-url="@Url.Action("Details", "borrows", new { id = item.borrowId })">Details</a>
+                        <a href="#" class="delete-link" data-url="@Url.Action("Delete", "borrows", new { id = item.borrowId })">Delete</a>
+                    </td>
+                </tr>
+            }
+        </table>
+    </div>
+</div>
+@Html.PagedListPager(Model.Borrows, page => Url.Action("Maintain", new { page }))
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<div id="myModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">My To Do List</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modal-content">
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    $(document).ready(function () {
+        // Function to handle Edit link click event in the Combined View and Details modal
+        $(".edit-link, .edit-link-in-modal").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+
+        $(".details-link, .details-link-in-modal").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+
+        $(".delete-link, .delete-link-in-modal").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+
+        // Function to handle form submission within the modal
+        $("#modal-content").on("submit", "form", function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr("action");
+            var formData = form.serialize();
+
+            $.post(url, formData, function (data) {
+                $("#myModal").modal("hide");
+                location.reload();
+            });
+        });
+
+        $(".create-link, .create-link-in-modal").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+
+        // Function to handle other links (details, delete, create) within the modal
+        $(".details-link .delete-link, .create-link, .create-lookup-link").click(function (e) {
+            e.preventDefault();
+            var url = $(this).data("url");
+
+            $.get(url, function (data) {
+                $("#modal-content").empty();
+                $("#modal-content").html(data);
+                $("#myModal").modal("show");
+            });
+        });
+    });
+</script>
